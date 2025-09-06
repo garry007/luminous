@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom'; // React Router for navigation (
 // Login component using React, JavaScript, and JSX
 const Login = () => {
   // useState is a React hook for managing component state (JS)
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('neyq');
+  const [password, setPassword] = useState('tytqyt');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); // For navigation (React Router)
@@ -20,16 +20,24 @@ const Login = () => {
     setError('');
     setLoading(true);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/users/login/', {
+      const response = await fetch('http://127.0.0.1:8001/api/users/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
       });
-  // Always navigate to home after submit, regardless of API response
-  setLoading(false);
-  navigate('/home');
+      setLoading(false);
+      if (response.ok) {
+        navigate('/home');
+      } else {
+        let errorMsg = 'Login failed. Please check your credentials.';
+        try {
+          const data = await response.json();
+          if (data && data.detail) errorMsg = data.detail;
+        } catch {}
+        setError(errorMsg);
+      }
     } catch (err) {
       setError('Network error. Please try again.');
       setLoading(false);

@@ -4,8 +4,15 @@ import styles from './Button.module.css';
 
 // Registration component using React and JSX (no TypeScript)
 const Register = () => {
-  // State for form fields and message
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', phone: '' });
+  // State for form fields and message, pre-filled with test data
+  const [form, setForm] = useState({
+    username: 'aira',
+    password: 'aira',
+    email: 'aira@example.com',
+    first_name: 'aira ',
+    last_name: 'aira ou',
+    phone: ''
+  });
   const [message, setMessage] = useState('');
 
   // Handle input changes
@@ -14,22 +21,34 @@ const Register = () => {
   };
 
   // Handle form submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simple validation
-    if (!form.name || !form.email || !form.password || !form.confirmPassword || !form.phone) {
-      setMessage('All fields are required.');
-      return;
+    // Use the current form state as the payload
+    const url = 'http://localhost:8001/api/users/register/';
+    console.log('Register API URL:', url);
+    console.log('Register Payload:', JSON.stringify(form));
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        setMessage(errorData.detail || 'Registration failed.');
+        return;
+      }
+      const data = await response.json();
+      setMessage('Registration successful!');
+      setTimeout(() => {
+        setMessage('');
+        window.location.href = '/login';
+      }, 1000);
+    } catch (error) {
+      setMessage('Network error. Please try again.');
     }
-    if (form.password !== form.confirmPassword) {
-      setMessage('Passwords do not match.');
-      return;
-    }
-    setMessage('Registration successful!');
-    setTimeout(() => {
-      setMessage('');
-      window.location.href = '/home';
-    }, 1000);
   };
 
   return (
@@ -38,15 +57,39 @@ const Register = () => {
         <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>Register</h2>
         {message && <div style={{ color: message.includes('success') ? 'green' : 'red', marginBottom: '1rem' }}>{message}</div>}
         <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="name" style={{ display: 'block', marginBottom: '0.5rem' }}>Name</label>
+          <label htmlFor="username" style={{ display: 'block', marginBottom: '0.5rem' }}>Username</label>
           <input
             type="text"
-            id="name"
-            name="name"
-            value={form.name}
+            id="username"
+            name="username"
+            value={form.username}
             onChange={handleChange}
             style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
-            placeholder="Enter your name"
+            placeholder="Enter your username"
+          />
+        </div>
+        <div style={{ marginBottom: '1rem' }}>
+          <label htmlFor="first_name" style={{ display: 'block', marginBottom: '0.5rem' }}>First Name</label>
+          <input
+            type="text"
+            id="first_name"
+            name="first_name"
+            value={form.first_name}
+            onChange={handleChange}
+            style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
+            placeholder="Enter your first name"
+          />
+        </div>
+        <div style={{ marginBottom: '1rem' }}>
+          <label htmlFor="last_name" style={{ display: 'block', marginBottom: '0.5rem' }}>Last Name</label>
+          <input
+            type="text"
+            id="last_name"
+            name="last_name"
+            value={form.last_name}
+            onChange={handleChange}
+            style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
+            placeholder="Enter your last name"
           />
         </div>
         <div style={{ marginBottom: '1rem' }}>
@@ -83,18 +126,6 @@ const Register = () => {
             onChange={handleChange}
             style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
             placeholder="Enter your password"
-          />
-        </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="confirmPassword" style={{ display: 'block', marginBottom: '0.5rem' }}>Confirm Password</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
-            placeholder="Confirm your password"
           />
         </div>
         {/* Button using CSS module for styling */}
